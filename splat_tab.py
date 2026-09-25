@@ -13,7 +13,7 @@ import uuid
 import gradio as gr
 
 from streetview_to_3d import gpu
-from streetview_to_3d.paths import DATA_DIR, RUNS_DIR
+from streetview_to_3d.paths import DATA_DIR, new_run_dir
 from streetview_to_3d.reconstruct.around_pano import download, node_near, panos_around
 from streetview_to_3d.services.geo import extract_lat_lon
 from streetview_to_3d.ui.viewers import file_url
@@ -22,6 +22,7 @@ import tasks
 import viewers
 
 # Uploaded panoramas: not downloaded, so not in the shared pano cache.
+# Under DATA_DIR, so new_run_dir clears day-old ones too.
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
@@ -92,7 +93,7 @@ def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
             if path:
                 neighbours.append(path)
 
-    output_dir = os.path.join(RUNS_DIR, uuid.uuid4().hex)
+    output_dir = new_run_dir()
     t0 = time.time()
     try:
         ply = gpu.run(tasks.make_splat, state["image_path"], neighbours, output_dir,
