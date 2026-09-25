@@ -33,6 +33,8 @@ def make_splat(image_path, depth_image_path, neighbour_paths, output_dir, scale_
     with tempfile.TemporaryDirectory() as views:
         depth = depth_around(depth_image_path, neighbour_paths, gpu.get_da3_config(),
                              views, gpu.get_da3())
+    # SHARP needs the room, next to FLUX
+    gpu.release_da3()
     kept, total = depth["views"]
     print(f"depth: {len(depth['neighbours'])} neighbour(s) kept, target kept {kept}/{total} views, "
           f"{len(depth['points']):,} points", flush=True)

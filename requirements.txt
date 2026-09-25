@@ -5,5 +5,5 @@ peft
 
 # The two libraries this app puts together, pinned by commit so the Space
 # only changes when this file does.
-streetview-to-3d @ git+https://github.com/YellowO2/streetview-to-3d.git@26b9b835409fa14b64b12d420d5400d151f03890
+streetview-to-3d @ git+https://github.com/YellowO2/streetview-to-3d.git@1ee4c6775907f5d738dd83968a609e75f91f9089
 panoramic-to-3dgs @ git+https://github.com/YellowO2/panoramic-to-3dgs.git@1ad72d148f2e89cd1a2f7a47f36afa70ab297be6
