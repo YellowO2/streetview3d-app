@@ -14,7 +14,7 @@ short_description: Street View panoramas into point clouds and 3DGS scenes
 
 # Street View to 3D
 
-A Gradio app that hosts two projects in one [Hugging Face Space](https://huggingface.co/spaces/potato-bug/street-view-to-3dgs):
+A Gradio app that hosts two projects in one [Hugging Face Space](https://huggingface.co/spaces/potato-bug/street-view-to-3d):
 
 1. **Street → point cloud**: [streetview-to-3d](https://github.com/YellowO2/streetview-to-3d)
 2. **Panorama → 3DGS**: [panoramic-to-3dgs](https://github.com/YellowO2/panoramic-to-3dgs)
