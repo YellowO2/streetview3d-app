@@ -45,4 +45,4 @@ def make_splat(image_path, neighbour_paths, output_dir, scale_mode):
     _pipeline.config.scale_mode = scale_mode
     _pipeline.run(image_path, output_dir, depth)
     print(f"timing: splat {time.monotonic() - t0:.1f}s of {SPLAT_GPU_S}s", flush=True)
-    return os.path.join(output_dir, "final_output.ply")
+    return os.path.join(output_dir, "final_output.spz")

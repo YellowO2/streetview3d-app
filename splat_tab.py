@@ -96,14 +96,14 @@ def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
     output_dir = new_run_dir()
     t0 = time.time()
     try:
-        ply = gpu.run(tasks.make_splat, state["image_path"], neighbours, output_dir,
-                      scale_mode, seconds=tasks.SPLAT_GPU_S)
+        splat = gpu.run(tasks.make_splat, state["image_path"], neighbours, output_dir,
+                        scale_mode, seconds=tasks.SPLAT_GPU_S)
     except Exception as e:
         raise gr.Error(f"Generation failed: {e}")
-    if not ply or not os.path.exists(ply):
+    if not splat or not os.path.exists(splat):
         raise gr.Error("Generation finished but produced no splat.")
     progress(1.0, desc=f"Done: {1 + len(neighbours)} pano(s), {time.time() - t0:.0f}s")
-    yield viewers.splat_viewer_with_download(file_url(ply))
+    yield viewers.splat_viewer_with_download(file_url(splat))
 
 
 def build_splat_tab():
