@@ -19,7 +19,9 @@ from splat_tab import build_splat_tab
 with gr.Blocks(title="Street View to 3D") as demo:
     gr.Markdown(
         "# Street View to 3D\n"
-        "Turn Google Street View and Apple Look Around panoramas into 3D. "
+        "This Space provides two functions, from Google Street View and Apple Look Around panoramas:\n\n"
+        "1. **Street → point cloud** (tab 1): a large-scale 3D point cloud of the street around the selected location.\n"
+        "2. **Panorama → 3DGS** (tab 2): a small-scale 3D Gaussian splat of one panorama at the selected location.\n\n"
         "[[GitHub](https://github.com/YellowO2/streetview3d-app)]"
     )
     with gr.Tabs():
