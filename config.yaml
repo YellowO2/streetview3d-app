@@ -1,7 +1,5 @@
 models:
-  # Overridden at runtime by config.py via huggingface_hub downloads.
-  sharp: ""
-  da3: ""
+  sharp: ""   # downloaded at runtime by config.py
 
 pipeline:
   scale_mode: da3_2dgrid_global
@@ -9,10 +7,9 @@ pipeline:
   #   da3_2dgrid_global  — DA3 scale via 2D (depth × FOV) grid (recommended)
   #   da3_y_ground       — uniform per-slice scale based on estimated ground elevation
   #   near_edge          — match nearest-Z edge across slices (no depth model required)
-  clean_image: false        # remove people via inpainting before processing
   slice_count: 4            # number of horizontal SHARP view slices per pano
   include_sky: true         # include an upward (+90° pitch) SHARP view (horizon + floor + sky)
-  debug: false              # save intermediate view slices and debug PCDs
+  debug: false              # save the view slices and per-view splats
 
 processor:
   align_depth: 30         # metres — Gaussians within this range used for scale alignment

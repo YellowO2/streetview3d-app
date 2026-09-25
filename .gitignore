@@ -1,8 +1,7 @@
 .venv
+data
 __pycache__
-images
 .DS_Store
 models
-splats
 references
 .claude

@@ -1,5 +1,5 @@
 ---
-title: Street View To 3dgs
+title: Street View To 3D
 emoji: 🌖
 colorFrom: pink
 colorTo: indigo
@@ -9,13 +9,21 @@ python_version: '3.12'
 app_file: app.py
 pinned: false
 license: mit
-short_description: Turns a Google Street View location into a 3DGS scene
+short_description: Street View panoramas into point clouds and 3DGS scenes
 ---
 
-# Street View to 3DGS
+# Street View to 3D
 
-Convert Google Street View panoramas into 3D Gaussian Splat scenes, built on top of [panoramic-to-3dgs](https://github.com/YellowO2/panoramic-to-3dgs).
-Check out the demo on [Hugging Face](https://huggingface.co/spaces/potato-bug/street-view-to-3dgs).
+Turn Google Street View and Apple Look Around panoramas into 3D, in two ways:
+
+- **Street → point cloud**: pick a stretch of street on the map; its panoramas are linked with Depth Anything 3 and placed on the real road as one point cloud.
+- **Panorama → 3DGS**: pick one panorama (any Google or Apple capture of a spot), optionally edit it with FLUX, and turn it into a Gaussian splat with Apple SHARP, scaled against DA3 depth from the same capture's neighbouring panoramas.
+
+Try it on [Hugging Face](https://huggingface.co/spaces/potato-bug/street-view-to-3dgs). This repo is only the app; the work is done by:
+
+- [streetview-to-3d](https://github.com/YellowO2/streetview-to-3d): fetching panoramas, the street reconstruction, depth around one panorama, and the GPU entry point both tabs share
+- [panoramic-to-3dgs](https://github.com/YellowO2/panoramic-to-3dgs): one panorama plus depth into a splat
+- [panoramic-da3](https://github.com/YellowO2/panoramic-da3): Depth Anything 3 on panoramas
 
 <table>
 <tr>
@@ -30,27 +38,17 @@ Check out the demo on [Hugging Face](https://huggingface.co/spaces/potato-bug/st
 
 ## Run locally
 
-Requires an NVIDIA GPU with recent drivers. Python **3.12** is recommended.
+Requires an NVIDIA GPU with recent drivers and Python 3.12.
 
 ```bash
-# 1. Create venv and activate
 python3.12 -m venv .venv && source .venv/bin/activate
-
-# 2. Install torch + torchvision matching your CUDA driver. 
-# Pick the right wheel index for your CUDA version. 
-# Check with `nvidia-smi`. For example:
-#      CUDA 12.1 → https://download.pytorch.org/whl/cu121
-#      CUDA 12.4 → https://download.pytorch.org/whl/cu124
+# torch + torchvision matching your CUDA version (see `nvidia-smi`), e.g. CUDA 12.4:
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
-
-# 3. Install the rest
 pip install -r requirements.txt
-
-# 4. Run
 python app.py
 ```
 
-Models (Sharp, DA3, and FLUX) are downloaded from the Hugging Face Hub on first run and cached under `~/.cache/huggingface/`.
+Models (DA3, SHARP, FLUX) download from the Hugging Face Hub on first use. Everything the app writes goes under `./data` (set `STREETVIEW_TO_3D_DATA` to move it).
 
 ## Acknowledgments
 
