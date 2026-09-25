@@ -17,7 +17,7 @@ short_description: Street View panoramas into point clouds and 3DGS scenes
 Turn Google Street View and Apple Look Around panoramas into 3D, in two ways:
 
 - **Street → point cloud**: pick a stretch of street on the map; its panoramas are linked with Depth Anything 3 and placed on the real road as one point cloud.
-- **Panorama → 3DGS**: pick one panorama (any Google or Apple capture of a spot), optionally edit it with FLUX, and turn it into a Gaussian splat with Apple SHARP, scaled against DA3 depth from the same capture's neighbouring panoramas.
+- **Panorama → 3DGS**: pick one panorama (any Google or Apple capture of a spot) and turn it into a Gaussian splat with Apple SHARP, scaled against DA3 depth from the same capture's neighbouring panoramas.
 
 Try it on [Hugging Face](https://huggingface.co/spaces/potato-bug/street-view-to-3dgs). This repo is only the app; the work is done by:
 
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Models (DA3, SHARP, FLUX) download from the Hugging Face Hub on first use. Everything the app writes goes under `./data` (set `STREETVIEW_TO_3D_DATA` to move it).
+Models (DA3, SHARP) download from the Hugging Face Hub on first use. Everything the app writes goes under `./data` (set `STREETVIEW_TO_3D_DATA` to move it).
 
 ## Acknowledgments
 
@@ -56,8 +56,6 @@ This project relies on:
 
 - [Depth-Anything-3](https://github.com/ByteDance-Seed/Depth-Anything-3) (Apache 2.0)
 - [Apple ml-sharp](https://github.com/apple/ml-sharp) (Apple sample code license)
-- [FLUX.2-klein](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B) (Black Forest Labs)
-- [flux-2-klein-4B-object-remove-lora](https://huggingface.co/fal/flux-2-klein-4B-object-remove-lora) (fal)
 
 ## License
 
