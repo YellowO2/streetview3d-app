@@ -16,7 +16,7 @@ from streetview_to_3d import gpu
 from streetview_to_3d.paths import DATA_DIR, new_run_dir
 from streetview_to_3d.reconstruct.around_pano import download, node_near, panos_around
 from streetview_to_3d.services.geo import extract_lat_lon
-from streetview_to_3d.ui.viewers import file_url
+from streetview_to_3d.ui.viewers import build_viewer, file_url
 
 import tasks
 import viewers
@@ -79,7 +79,9 @@ def handle_upload(file_path):
 def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
     if not state or not state.get("image_path"):
         raise gr.Error("Load or upload a panorama first.")
-    yield viewers.SPLAT_PLACEHOLDER
+    # nothing to look at until the splat exists, and a previous run's
+    # download would be mistaken for this one's
+    yield gr.HTML(visible=False), gr.DownloadButton(visible=False), "<p>Generating… about 2 minutes.</p>"
 
     neighbours = []
     if state.get("captures"):
@@ -99,11 +101,14 @@ def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
         splat = gpu.run(tasks.make_splat, state["image_path"], neighbours, output_dir,
                         scale_mode, seconds=tasks.SPLAT_GPU_S)
     except Exception as e:
+        yield gr.HTML(visible=True), gr.skip(), "<p>Generation failed. Try again.</p>"
         raise gr.Error(f"Generation failed: {e}")
     if not splat or not os.path.exists(splat):
+        yield gr.HTML(visible=True), gr.skip(), "<p>Generation failed. Try again.</p>"
         raise gr.Error("Generation finished but produced no splat.")
-    progress(1.0, desc=f"Done: {1 + len(neighbours)} pano(s), {time.time() - t0:.0f}s")
-    yield viewers.splat_viewer_with_download(file_url(splat))
+    yield (gr.HTML(build_viewer(splat_url=file_url(splat)), visible=True),
+           gr.DownloadButton(value=splat, visible=True),
+           f"<p>Splat ready: {1 + len(neighbours)} pano(s), {time.time() - t0:.0f} s.</p>")
 
 
 def build_splat_tab():
@@ -133,7 +138,12 @@ def build_splat_tab():
         scale_mode = gr.Dropdown(choices=["da3_y_ground", "da3_2dgrid_global"], value="da3_y_ground",
                                  label="Scale mode", info="How the splat is scaled against depth.", scale=2)
         generate_btn = gr.Button("Generate", variant="primary", scale=1, min_width=160)
-    splat_view = gr.HTML(viewers.SPLAT_PLACEHOLDER)
+    splat_status = gr.HTML()
+    # Above the viewer, and only once there is a splat, as in the street tab.
+    download_btn = gr.DownloadButton("Download splat (.spz)", visible=False, variant="primary")
+    # The shared viewer, drop-ready from page load: a downloaded .spz can be
+    # opened in it without generating anything.
+    splat_view = gr.HTML(build_viewer())
 
     state.change(fn=lambda s: gr.update(visible=bool(s), value=(s or {}).get("image_path")),
                  inputs=[state], outputs=[pano_download])
@@ -143,5 +153,6 @@ def build_splat_tab():
                             outputs=[map_view, pano_view, state])
     upload_btn.upload(fn=handle_upload, inputs=[upload_btn], outputs=[pano_view, state]).then(
         fn=lambda: gr.update(choices=[], value=None, visible=False), outputs=[capture_dropdown])
-    generate_btn.click(fn=handle_generate, inputs=[state, scale_mode], outputs=[splat_view],
-                       show_progress="minimal", show_progress_on=[splat_view])
+    generate_btn.click(fn=handle_generate, inputs=[state, scale_mode],
+                       outputs=[splat_view, download_btn, splat_status],
+                       show_progress="minimal", show_progress_on=[splat_status])

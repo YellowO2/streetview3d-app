@@ -1,5 +1,5 @@
-"""The splat tab's map, panorama and splat viewers. The iframe wrapper and
-file URLs are streetview_to_3d's, shared with the street tab."""
+"""The splat tab's map and panorama previews. The 3D viewer itself is
+streetview_to_3d's, the same one the street tab uses."""
 from streetview_to_3d.ui.viewers import iframe
 
 
@@ -14,13 +14,6 @@ PANO_PLACEHOLDER = iframe(
     "display:flex;align-items:center;justify-content:center;height:100vh'>"
     "Panorama viewer</body></html>"
 )
-SPLAT_PLACEHOLDER = iframe(
-    "<html><body style='margin:0;background:#111;color:#777;font:14px sans-serif;"
-    "display:flex;align-items:center;justify-content:center;height:100vh'>"
-    "Generate a 3DGS scene to view it here</body></html>"
-)
-
-
 def build_map(lat: float, lon: float) -> str:
     doc = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -86,80 +79,6 @@ const tick = () => {{
     );
     renderer.render(scene, camera);
 }};
-renderer.setAnimationLoop(tick);
-document.addEventListener('visibilitychange', () => {{
-    renderer.setAnimationLoop(document.hidden ? null : tick);
-}});
-</script></body></html>"""
-    return iframe(doc)
-
-
-def splat_viewer_with_download(splat_url: str) -> str:
-    """Splat iframe + an inline download link below it. The link rides inside
-    the same HTML payload as the viewer, so it survives backgrounded-tab
-    WebSocket throttling that would otherwise drop separate component updates."""
-    download_link = (
-        f'<a href="{splat_url}" download '
-        f'style="display:inline-block;margin-top:8px;padding:10px 16px;'
-        f'background:#5b47d1;color:#fff;text-decoration:none;border-radius:8px;'
-        f'font:600 14px sans-serif;">⬇ Download 3DGS (.spz)</a>'
-    )
-    return f'<div>{build_splat_iframe(splat_url)}{download_link}</div>'
-
-
-def build_splat_iframe(splat_url: str) -> str:
-    doc = f"""<!DOCTYPE html><html><head><meta charset="utf-8">
-<style>body{{margin:0;background:#000;overflow:hidden;font:14px sans-serif;color:#bbb}}canvas{{display:block}}
-#hint{{position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,.4);font:11px sans-serif;pointer-events:none}}
-#loading{{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
-  background:#000;transition:opacity .4s;pointer-events:none;padding:1em}}
-#loading.gone{{opacity:0}}
-.dot{{display:inline-block;animation:blink 1.4s infinite both}}
-.dot:nth-child(2){{animation-delay:.2s}}.dot:nth-child(3){{animation-delay:.4s}}
-@keyframes blink{{0%,80%,100%{{opacity:0}}40%{{opacity:1}}}}</style>
-<script type="importmap">
-{{"imports":{{
-    "three":"https://unpkg.com/three@0.178.0/build/three.module.js",
-    "three/addons/":"https://unpkg.com/three@0.178.0/examples/jsm/",
-    "@sparkjsdev/spark":"https://sparkjs.dev/releases/spark/0.1.10/spark.module.js"
-}}}}
-</script></head><body>
-<div id="loading">Loading 3DGS scene<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
-<div id="hint">drag to move</div>
-<script type="module">
-import * as THREE from 'three';
-import {{ SplatMesh, SparkControls }} from '@sparkjsdev/spark';
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({{antialias:true}});
-renderer.setPixelRatio(devicePixelRatio);
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-document.body.appendChild(renderer.domElement);
-const controls = new SparkControls({{canvas: renderer.domElement}});
-const splat = new SplatMesh({{url: '{splat_url}'}});
-splat.quaternion.set(1, 0, 0, 0);  // flip 180° around X — splats come out upside-down otherwise
-scene.add(splat);
-const hideLoading = () => {{
-    const el = document.getElementById('loading');
-    if (el) {{ el.classList.add('gone'); setTimeout(() => el.remove(), 500); }}
-}};
-if (splat.initialized && typeof splat.initialized.then === 'function') {{
-    splat.initialized.then(hideLoading).catch(hideLoading);
-}} else {{
-    // Fallback: hide once the splat has any visible content (numSplats > 0).
-    const check = () => {{
-        if (splat.numSplats && splat.numSplats > 0) hideLoading();
-        else setTimeout(check, 500);
-    }};
-    check();
-    setTimeout(hideLoading, 90000);  // hard cap
-}}
-addEventListener('resize', () => {{
-    camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
-}});
-const tick = () => {{ controls.update(camera); renderer.render(scene, camera); }};
 renderer.setAnimationLoop(tick);
 document.addEventListener('visibilitychange', () => {{
     renderer.setAnimationLoop(document.hidden ? null : tick);
