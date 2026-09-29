@@ -3,5 +3,5 @@ torchvision
 
 # The two libraries this app puts together, pinned by commit so the Space
 # only changes when this file does.
-streetview-to-3d @ git+https://github.com/YellowO2/streetview-to-3d.git@4a0fe85e04b79a707f8f82f620dcaf727e6704b1
+streetview-to-3d @ git+https://github.com/YellowO2/streetview-to-3d.git@3adaf013f0f684babafe9cb3a897a9eed2eb8a0f
 panoramic-to-3dgs @ git+https://github.com/YellowO2/panoramic-to-3dgs.git@b2153de4faf3a5a6ce4663348df8e635c8e13170
