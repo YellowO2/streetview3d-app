@@ -1,9 +1,9 @@
 """The splat tab: one panorama, turned into a Gaussian splat.
 
-Pick a spot, pick which capture of it (Google or Apple, and when), then
-Generate. Depth comes from streetview_to_3d: the capture's own
-panos at the neighbouring Street View nodes, run through DA3 together
-(depth_around), so the splat is scaled against more than one viewpoint.
+Pick a spot, pick which capture of it (when), then Generate. Depth comes
+from the capture's own panos at the neighbouring Street View nodes
+(splat_sources), run through DA3 together (tasks.depth_around), so the
+splat is scaled against more than one viewpoint.
 """
 import os
 import shutil
@@ -14,12 +14,12 @@ import gradio as gr
 
 from streetview_to_3d import gpu
 from streetview_to_3d.paths import DATA_DIR, new_run_dir
-from streetview_to_3d.reconstruct.around_pano import download, node_near, panos_around
 from streetview_to_3d.services.geo import extract_lat_lon
 from streetview_to_3d.ui.viewers import build_viewer, file_url
 
 import tasks
 import viewers
+from splat_sources import download, node_near, panos_around
 
 # Uploaded panoramas: not downloaded, so not in the shared pano cache.
 # Under DATA_DIR, so new_run_dir clears day-old ones too.
@@ -30,7 +30,7 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 def _label(capture):
     t = capture["target"]
     n = len(capture["neighbours"])
-    return f"{'Apple' if t['source'] == 'apple' else 'Google'} · {t['date']} · {n} neighbour{'s' * (n != 1)}"
+    return f"Google · {t['date']} · {n} neighbour{'s' * (n != 1)}"
 
 
 def _show(captures, i):
@@ -124,7 +124,7 @@ def build_splat_tab():
 
     capture_dropdown = gr.Dropdown(
         label="Capture",
-        info="Every capture of this spot, Google and Apple, newest first. Its panos at the "
+        info="Every capture of this spot, newest first. Its panos at the "
              "neighbouring nodes are used for depth.",
         choices=[], visible=False)
 
