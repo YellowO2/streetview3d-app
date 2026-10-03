@@ -33,4 +33,4 @@ python app.py
 
 ## License
 
-MIT.
+MIT, see [LICENSE](LICENSE).
