@@ -10,8 +10,8 @@ import time
 
 import numpy as np
 
-from streetview_to_3d import gpu
-from streetview_to_3d.services.da3_ops import KEEP_RATE_THRESHOLD, run_da3
+from streetview_to_3d.models import gpu
+from streetview_to_3d.models.da3 import KEEP_RATE_THRESHOLD, run_da3
 
 # One joint DA3 run on up to five panos (retried with fewer), then SHARP on
 # six views and the alignment, both models already loaded. The Stockholm

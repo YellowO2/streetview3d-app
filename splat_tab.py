@@ -12,9 +12,9 @@ import uuid
 
 import gradio as gr
 
-from streetview_to_3d import gpu
-from streetview_to_3d.paths import DATA_DIR, new_run_dir
-from streetview_to_3d.services.geo import extract_lat_lon
+from streetview_to_3d.models import gpu
+from streetview_to_3d.common.paths import DATA_DIR, new_run_dir
+from streetview_to_3d.common.geo import extract_lat_lon
 from streetview_to_3d.ui.viewers import build_viewer, file_url
 
 import tasks

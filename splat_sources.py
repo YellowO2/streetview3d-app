@@ -6,12 +6,12 @@ splat is scaled against more than one viewpoint).
 Same capture means same date: panos of different dates are never
 DA3-linked (see streetview_to_3d's walk_graph). Google only.
 """
-from streetview_to_3d.build_street_graph.build_graph import cap_bucket_for_date
-from streetview_to_3d.build_street_graph.date_ranking import date_recency_key
-from streetview_to_3d.build_street_graph.fetch_nodes import fetch_corridor_nodes
-from streetview_to_3d.services.geo import haversine_m
-from streetview_to_3d.services.streetview_fetch import DA3_ONLY_ZOOM, download_pano_by_id, run_async
-from streetview_to_3d.ui.map_selection.candidates import nearby_nodes
+from streetview_to_3d.panos.build_graph import cap_bucket_for_date
+from streetview_to_3d.panos.date_ranking import date_recency_key
+from streetview_to_3d.panos.fetch_nodes import fetch_corridor_nodes
+from streetview_to_3d.common.geo import haversine_m
+from streetview_to_3d.common.streetview_fetch import DA3_ONLY_ZOOM, download_pano_by_id, run_async
+from streetview_to_3d.panos.candidates import nearby_nodes
 
 # How far to look for Street View nodes around a pasted location.
 NEAR_M = 60.0

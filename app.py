@@ -7,8 +7,8 @@ Both reach the GPU through streetview_to_3d.gpu, one decorated function.
 Run locally:  python app.py
 """
 # The package first: importing it imports `spaces` before anything touches
-# CUDA, which ZeroGPU requires (see streetview_to_3d/gpu.py).
-from streetview_to_3d.paths import DATA_DIR
+# CUDA, which ZeroGPU requires (see streetview_to_3d/models/gpu.py).
+from streetview_to_3d.common.paths import DATA_DIR
 from streetview_to_3d.ui.map_selection.tab import BRIDGE_CSS, BRIDGE_HEAD_SCRIPT
 from streetview_to_3d.ui.tab import build_main_tab
 
