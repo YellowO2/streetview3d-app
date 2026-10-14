@@ -5,7 +5,6 @@ decorated function.
 Each task is a module-level function: ZeroGPU pickles it.
 """
 import os
-import tempfile
 import time
 
 import numpy as np
@@ -31,7 +30,7 @@ def _build_pipeline(device=None):
 _pipeline = _build_pipeline("cuda") if gpu.ON_SPACES else None
 
 
-def depth_around(target_path, neighbour_paths, cfg, views_base, da3):
+def depth_around(target_path, neighbour_paths, cfg, da3):
     """Depth around one panorama: a single joint DA3 run on it and its
     same-date neighbours; the splat is scaled against these points.
 
@@ -48,20 +47,19 @@ def depth_around(target_path, neighbour_paths, cfg, views_base, da3):
     for the target), n_clean (views surviving DA3's filter across the
     run), neighbours (the paths actually used).
     """
+    from panoramic_da3 import PointCloud
     target_id = os.path.basename(target_path)
     used, best = list(neighbour_paths), None
-    for attempt in range(len(used) + 1):
-        run_dir = os.path.join(views_base, f"around{attempt}")
-        os.makedirs(run_dir, exist_ok=True)
-        filtered, res, pts, cols, _, _ = run_da3(target_path, used, cfg, run_dir, da3=da3,
-                                                 dist_thresh=0.2, angle_thresh=1)
+    for _ in range(len(used) + 1):
+        point_clouds, res = run_da3([target_path, *used], cfg, da3, dist_thresh=0.2, angle_thresh=1)
+        cloud = PointCloud.merge(point_clouds.values())
         pose = res.pano_poses.get(target_id)
         run = {
-            "points": pts if pts is not None else np.zeros((0, 3)),
-            "colors": cols if cols is not None else np.zeros((0, 3)),
+            "points": cloud.points,
+            "colors": cloud.colours,
             "pose": (pose["center"], pose["rotation"]) if pose else None,
             "views": res.pano_keep_counts.get(target_id, (0, 0)),
-            "n_clean": len(filtered),
+            "n_clean": len(res.views),
             "neighbours": list(used),
         }
         print(f"depth_around: {len(used)} neighbour(s): target kept {run['views'][0]}/"
@@ -85,9 +83,7 @@ def make_splat(image_path, neighbour_paths, output_dir, scale_mode):
     splat scaled against it. Returns the splat's path."""
     global _pipeline
     t0 = time.monotonic()
-    with tempfile.TemporaryDirectory() as views:
-        depth = depth_around(image_path, neighbour_paths, gpu.get_da3_config(),
-                             views, gpu.get_da3())
+    depth = depth_around(image_path, neighbour_paths, gpu.get_da3_config(), gpu.get_da3())
     kept, total = depth["views"]
     print(f"depth: {len(depth['neighbours'])} neighbour(s) used, target kept {kept}/{total} views, "
           f"{len(depth['points']):,} points", flush=True)
