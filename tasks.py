@@ -9,9 +9,9 @@ import time
 
 import numpy as np
 
-from streetview_to_3d.models.DepthModel import KEEP_RATE_THRESHOLD, DepthModel
-from streetview_to_3d.models.Segmenter import Segmenter
-from streetview_to_3d.reconstruct.PanoDepth import PanoDepth
+from streetview_to_3d.build_scene.models.DepthModel import KEEP_RATE_THRESHOLD, DepthModel
+from streetview_to_3d.build_scene.models.Segmenter import Segmenter
+from streetview_to_3d.build_scene.reconstruct.PanoDepth import PanoDepth
 from streetview_to_3d.tools.on_gpu import ON_SPACES
 
 # One joint DA3 run on up to five panos (retried with fewer), then SHARP on

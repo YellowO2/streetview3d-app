@@ -9,8 +9,8 @@ Run locally:  python app.py
 """
 # The package first: importing it imports `spaces` before anything touches
 # CUDA, which ZeroGPU requires (see streetview_to_3d/tools/on_gpu.py).
-from streetview_to_3d import panos
-from streetview_to_3d.main import streetview_to_3d
+from streetview_to_3d.build_scene import build_scene
+from streetview_to_3d.gather_panoramas import gather_panoramas
 from streetview_to_3d.tools.paths import DATA_DIR
 from ui import BRIDGE_CSS, BRIDGE_HEAD_SCRIPT, ui
 
@@ -28,7 +28,7 @@ with gr.Blocks(title="Street View to 3D") as demo:
     )
     with gr.Tabs():
         with gr.Tab("Street → point cloud"):
-            ui(prepare=panos, build=streetview_to_3d)
+            ui(prepare=gather_panoramas, build=build_scene)
         with gr.Tab("Panorama → 3DGS"):
             build_splat_tab()
 
