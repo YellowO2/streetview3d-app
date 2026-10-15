@@ -1,6 +1,6 @@
 """The splat tab's map and panorama previews. The 3D viewer itself is
 streetview_to_3d's, the same one the street tab uses."""
-from streetview_to_3d.ui.viewers import iframe
+from ui.tools.page import iframe
 
 
 MAP_PLACEHOLDER = iframe(

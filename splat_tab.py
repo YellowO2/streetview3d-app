@@ -12,10 +12,11 @@ import uuid
 
 import gradio as gr
 
-from streetview_to_3d.models import gpu
-from streetview_to_3d.common.paths import DATA_DIR, new_run_dir
-from streetview_to_3d.common.geo import extract_lat_lon
-from streetview_to_3d.ui.viewers import build_viewer, file_url
+from streetview_to_3d import on_gpu
+from streetview_to_3d.tools.geo import extract_lat_lon
+from streetview_to_3d.tools.paths import DATA_DIR, new_run_dir
+from ui.tools.page import file_url
+from ui.tools.viewer import viewer
 
 import tasks
 import viewers
@@ -98,7 +99,7 @@ def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
     output_dir = new_run_dir()
     t0 = time.time()
     try:
-        splat = gpu.run(tasks.make_splat, state["image_path"], neighbours, output_dir,
+        splat = on_gpu(tasks.make_splat, state["image_path"], neighbours, output_dir,
                         scale_mode, seconds=tasks.SPLAT_GPU_S)
     except Exception as e:
         yield gr.HTML(visible=True), gr.skip(), "<p>Generation failed. Try again.</p>"
@@ -106,7 +107,7 @@ def handle_generate(state, scale_mode, progress=gr.Progress(track_tqdm=True)):
     if not splat or not os.path.exists(splat):
         yield gr.HTML(visible=True), gr.skip(), "<p>Generation failed. Try again.</p>"
         raise gr.Error("Generation finished but produced no splat.")
-    yield (gr.HTML(build_viewer(splat_url=file_url(splat)), visible=True),
+    yield (gr.HTML(viewer(splat_url=file_url(splat)), visible=True),
            gr.DownloadButton(value=splat, visible=True),
            f"<p>Splat ready: {1 + len(neighbours)} pano(s), {time.time() - t0:.0f} s.</p>")
 
@@ -143,7 +144,7 @@ def build_splat_tab():
     download_btn = gr.DownloadButton("Download splat (.spz)", visible=False, variant="primary")
     # The shared viewer, drop-ready from page load: a downloaded .spz can be
     # opened in it without generating anything.
-    splat_view = gr.HTML(build_viewer())
+    splat_view = gr.HTML(viewer())
 
     state.change(fn=lambda s: gr.update(visible=bool(s), value=(s or {}).get("image_path")),
                  inputs=[state], outputs=[pano_download])

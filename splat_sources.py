@@ -4,14 +4,14 @@ nearest pano at every node it links to (DA3 runs them together, so the
 splat is scaled against more than one viewpoint).
 
 Same capture means same date: panos of different dates are never
-DA3-linked (see streetview_to_3d's walk_graph). Google only.
+DA3-linked (see streetview_to_3d's reconstruct/walk.py). Google only.
 """
-from streetview_to_3d.panos.build_graph import cap_bucket_for_date
-from streetview_to_3d.panos.date_ranking import date_recency_key
-from streetview_to_3d.panos.fetch_nodes import fetch_corridor_nodes
-from streetview_to_3d.common.geo import haversine_m
-from streetview_to_3d.common.streetview_fetch import DA3_ONLY_ZOOM, download_pano_by_id, run_async
-from streetview_to_3d.panos.candidates import nearby_nodes
+from streetview_to_3d import cap_bucket_for_date, date_recency_key
+from streetview_to_3d.panos.fetch_corridor_nodes import fetch_corridor_nodes
+from streetview_to_3d.tools.geo import haversine_m
+from streetview_to_3d.tools.run_async import run_async
+from streetview_to_3d.tools.streetview_fetch.download_pano_by_id import DA3_ONLY_ZOOM, download_pano_by_id
+from ui.map_selection.nearby_nodes import nearby_nodes
 
 # How far to look for Street View nodes around a pasted location.
 NEAR_M = 60.0

@@ -1,16 +1,18 @@
 """Street View to 3D: a whole street as a placed point cloud, or one
 panorama as a Gaussian splat.
 
-The street tab is streetview_to_3d's own; the splat tab is splat_tab.py.
-Both reach the GPU through streetview_to_3d.gpu, one decorated function.
+The street tab is streetview-to-3d's own page (ui), handed its engine's two jobs;
+the splat tab is splat_tab.py. Both reach the GPU through streetview_to_3d.on_gpu,
+one decorated function.
 
 Run locally:  python app.py
 """
 # The package first: importing it imports `spaces` before anything touches
-# CUDA, which ZeroGPU requires (see streetview_to_3d/models/gpu.py).
-from streetview_to_3d.common.paths import DATA_DIR
-from streetview_to_3d.ui.map_selection.tab import BRIDGE_CSS, BRIDGE_HEAD_SCRIPT
-from streetview_to_3d.ui.tab import build_main_tab
+# CUDA, which ZeroGPU requires (see streetview_to_3d/tools/on_gpu.py).
+from streetview_to_3d import panos
+from streetview_to_3d.main import streetview_to_3d
+from streetview_to_3d.tools.paths import DATA_DIR
+from ui import BRIDGE_CSS, BRIDGE_HEAD_SCRIPT, ui
 
 import gradio as gr
 
@@ -26,7 +28,7 @@ with gr.Blocks(title="Street View to 3D") as demo:
     )
     with gr.Tabs():
         with gr.Tab("Street → point cloud"):
-            build_main_tab()
+            ui(prepare=panos, build=streetview_to_3d)
         with gr.Tab("Panorama → 3DGS"):
             build_splat_tab()
 

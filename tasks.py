@@ -1,5 +1,5 @@
 """This app's GPU work, run through streetview_to_3d's one GPU entry point
-(streetview_to_3d.gpu.run), so the street tab and this tab share one
+(streetview_to_3d.on_gpu), so the street tab and this tab share one
 decorated function.
 
 Each task is a module-level function: ZeroGPU pickles it.
@@ -9,8 +9,10 @@ import time
 
 import numpy as np
 
-from streetview_to_3d.models import gpu
-from streetview_to_3d.models.da3 import KEEP_RATE_THRESHOLD, run_da3
+from streetview_to_3d.models.DepthModel import KEEP_RATE_THRESHOLD, DepthModel
+from streetview_to_3d.models.Segmenter import Segmenter
+from streetview_to_3d.reconstruct.PanoDepth import PanoDepth
+from streetview_to_3d.tools.on_gpu import ON_SPACES
 
 # One joint DA3 run on up to five panos (retried with fewer), then SHARP on
 # six views and the alignment, both models already loaded. The Stockholm
@@ -26,11 +28,11 @@ def _build_pipeline(device=None):
 
 
 # On a Space, SHARP is loaded at startup on cuda, like DA3 in
-# streetview_to_3d.gpu: ZeroGPU moves it onto the GPU for each call.
-_pipeline = _build_pipeline("cuda") if gpu.ON_SPACES else None
+# streetview_to_3d.on_gpu: ZeroGPU moves it onto the GPU for each call.
+_pipeline = _build_pipeline("cuda") if ON_SPACES else None
 
 
-def depth_around(target_path, neighbour_paths, cfg, da3):
+def depth_around(target_path, neighbour_paths, depth: PanoDepth):
     """Depth around one panorama: a single joint DA3 run on it and its
     same-date neighbours; the splat is scaled against these points.
 
@@ -51,7 +53,7 @@ def depth_around(target_path, neighbour_paths, cfg, da3):
     target_id = os.path.basename(target_path)
     used, best = list(neighbour_paths), None
     for _ in range(len(used) + 1):
-        point_clouds, res = run_da3([target_path, *used], cfg, da3, dist_thresh=0.2, angle_thresh=1)
+        point_clouds, res = depth([target_path, *used], dist_thresh=0.2, angle_thresh=1)
         cloud = PointCloud.merge(point_clouds.values())
         pose = res.pano_poses.get(target_id)
         run = {
@@ -83,7 +85,7 @@ def make_splat(image_path, neighbour_paths, output_dir, scale_mode):
     splat scaled against it. Returns the splat's path."""
     global _pipeline
     t0 = time.monotonic()
-    depth = depth_around(image_path, neighbour_paths, gpu.get_da3_config(), gpu.get_da3())
+    depth = depth_around(image_path, neighbour_paths, PanoDepth(DepthModel(), Segmenter()))
     kept, total = depth["views"]
     print(f"depth: {len(depth['neighbours'])} neighbour(s) used, target kept {kept}/{total} views, "
           f"{len(depth['points']):,} points", flush=True)
